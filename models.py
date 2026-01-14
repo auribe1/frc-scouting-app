@@ -4,8 +4,6 @@ import uuid
 
 @dataclass
 class ScoutingEntry:
-    #Add more items to this list later like defense rating
-
     entryID: str
     createdAt : str
 
