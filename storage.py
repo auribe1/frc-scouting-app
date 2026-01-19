@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import List, Dict, Any
+from datetime import datetime, timezone
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
@@ -16,7 +17,34 @@ def make_entry_key(e: dict) -> tuple:
         e.get("scouter"),
     )
 
+#allows us to rewrite an entries file.
+def rewrite_entries(entries:list[dict]) -> None:
+   
+    with open(ENTRIES_PATH, "w", encoding="utf-8") as f:
+        for e in entries:
+            f.write(json.dumps(e) + "\n")
 
+#marks one entry that is passed in as synced. Returns true if the entry gets synced. The time complexity won't be a huge deal since we won't have too many entries but we'll switch to SQLite eventually.
+def mark_entry_synced(entry_id: str) -> bool:
+    
+    entries = load_entries()
+    updated = False
+    now = datetime.now(timezone.utc).isoformat()
+
+    for e in entries:
+        if e.get("entryID") == entry_id:
+            e["synced_at"] = now
+            updated = True
+            break
+    if updated:
+        rewrite_entries(entries)
+    
+    return updated
+
+#finds all the unsynced entries
+def get_unsynced_entries() -> list[dict]:
+    entries = load_entries()
+    return [e for e in entries if not e.get("synced_at")]
 
 
 def load_entries() -> List[Dict[str, Any]]:

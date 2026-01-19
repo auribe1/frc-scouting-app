@@ -6,6 +6,7 @@ import uuid
 class ScoutingEntry:
     entryID: str
     createdAt : str
+    synced_at: str| None
 
     event: str
     match_number: int
@@ -60,6 +61,7 @@ class ScoutingEntry:
         return ScoutingEntry(
             entryID= str(uuid.uuid4()),
             createdAt= datetime.now(timezone.utc).isoformat(),
+            synced_at= None,
 
             event=event,
             match_number=match_number,
