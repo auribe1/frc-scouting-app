@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from models import ScoutingEntry
-from storage import load_entries, save_entry
+from storage import load_entries, save_entry, validate_entry
 from reports import team_summary, list_entries
 
 Base_Dir = Path(__file__).resolve().parent
@@ -41,12 +41,12 @@ if __name__ == "__main__":
     entry = ScoutingEntry.new(
     event="TestEvent",
     match_number=1,
-    team_number=125,
+    team_number=1678,
     scouter="Ariel",
     auto_mobility=True,
-    auto_pieces=2,
-    teleop_pieces=100,
-    defense=False,
+    auto_pieces=22,
+    teleop_pieces=999,
+    defense=True,
     defense_rating=4,
     climb_type="high",
     climb_success=True,
@@ -56,7 +56,12 @@ if __name__ == "__main__":
     )
     
 
-    save_entry(entry.to_dict())
+    entryDict = entry.to_dict()
+    try:
+        save_entry(entryDict)
+    except (KeyError, ValueError) as e:
+        print(f"Not saved: {e}")
+
 
 
     entries = load_entries()
@@ -64,7 +69,7 @@ if __name__ == "__main__":
     #print(f"Loaded {len(entries)} entries")
     print(list_entries(entries))
     print()
-    team_summary(entries, team_number=125)
+    team_summary(entries, team_number=254)
 
 
 

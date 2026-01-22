@@ -9,12 +9,35 @@ DATA_DIR.mkdir(exist_ok=True)
 
 ENTRIES_PATH = DATA_DIR / "entries.jsonl"
 
+def validate_entry(entry: dict) -> None:
+    required = ["event", "match_number", "team_number", "scouter"]
+    for k in required:
+        no_empty_keyvals(entry, k)
+
+def no_empty_keyvals(entry: dict, key: str):
+    val = entry.get(key)
+    if val is None:
+        raise KeyError("invalid key")
+    elif(key == "team_number" or key == "match_number"):
+        if (not isinstance(val, int)):
+            raise ValueError(f"{key} must be an int")
+        elif (key == "match_number"):
+            if (val <= 0 or val > 999):
+                raise ValueError(f"{key} must be within range")
+        else:
+            if (val <= 0 or val > 99999):
+                raise ValueError(f"{key} is not within range")
+    elif not isinstance(val, str) or not val.strip(): 
+        raise ValueError(f"{key} must be a non empty string")
+    
+
+
 def make_entry_key(e: dict) -> tuple:
     return(
-        e.get("event"),
-        int(e.get("match_number", -1)),
-        int(e.get("team number", -1)),
-        e.get("scouter"),
+        e["event"],
+        e["match_number"],
+        e["team_number"],
+        e["scouter"],
     )
 
 #allows us to rewrite an entries file.
@@ -68,6 +91,7 @@ def save_entry(entry: Dict[str, Any]) -> None:
     """Append a single scouting entry if not duplicate
         Returns True if saved, false if duplicate
     """
+    validate_entry(entry)
 
     entries = load_entries()
     existing_keys = {make_entry_key(e) for e in entries}
